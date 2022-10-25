@@ -1,4 +1,5 @@
 from bs4 import BeautifulSoup
+import json
 import requests
 import re
 
@@ -33,6 +34,24 @@ def genre_book_links(soup):
         book_links.append(book_link)
     
     return book_links
+
+def multiple_page_links(link, soup):
+    genre_link = link
+    next_urls = []
+    next_tag = soup.find(class_='next')
+
+    
+    while next_tag:
+        next_url = next_tag.a['href']
+        url = genre_link.replace('index.html', next_url)
+        next_urls.append(url)
+
+        req = requests.get(url)
+        soup = BeautifulSoup(req.text, 'html.parser')
+        next_tag = soup.find(class_='next')
+    
+    return next_urls
+
 urls = ['https://books.toscrape.com/index.html']
 
 req = requests.get(urls.pop())
@@ -57,10 +76,14 @@ for idx in range(len(urls)):
 
 
 # Lets get the book data now
-
 soup = get_soup(urls[0])
+# get multiple links in genre if any
+genre_links = multiple_page_links(urls[0], soup)
+print(genre_links)
 # Get book genre
 genre = get_genre(soup)
 # Get genre links
 genre_book_links = genre_book_links(soup)
+
+
 
