@@ -4,17 +4,29 @@ import requests
 import re
 
 
-'''
-Generate a url
-returns a soup object
-'''
 def get_soup(url):
+    '''
+    This function takes an url and returns a soup object
+
+    Args:
+        url (str): string representing an url link
+    returns:
+        BeautifulSoup:
+    '''
     req = requests.get(url)
     return BeautifulSoup(req.text, 'html.parser')
-'''
-returns genre name
-'''
+
+
 def get_genre(soup):
+    '''
+    This function takes a BeautifulSoup object
+    and find the genre name from the booktoscrape page
+
+    Args:
+        soup (BeaufifulSoup): BeautifulSoup object
+    returns:
+        str: genre title
+    '''
     page_header = soup.find(class_='page-header')
     return page_header.h1.string
 
@@ -23,6 +35,15 @@ def get_genre(soup):
 Get book links from a page
 '''
 def genre_book_links(soup):
+    '''
+    This function takes a BeautifulSoup object that's
+    a parsed document of the book-to-scrape homepage
+
+    Args:
+        soup (BeaufifulSoup): BeautifulSoup object
+    returns:
+        List: A List of strings that consists the genre urls
+    '''
     book_links = []
 
     product_pods = soup.find_all(class_='product_pod')
@@ -36,6 +57,17 @@ def genre_book_links(soup):
     return book_links
 
 def multiple_page_links(link, soup):
+    '''
+    This function tkaes a BeautifulSoup object that's
+    a parsed document of a genre book link then finds 
+    all the genre subpages.
+
+    Args:
+        link (str): genre link
+        soup (BeaufifulSoup): BeautifulSoup object
+    returns:
+        List: A List of strings that holds the url genre subpages
+    '''
     genre_link = link
     next_urls = []
     next_tag = soup.find(class_='next')
