@@ -34,7 +34,7 @@ def get_genre(soup):
 '''
 Get book links from a page
 '''
-def genre_book_links(soup):
+def genre_page_links(soup):
     '''
     This function takes a BeautifulSoup object that's
     a parsed document of the book-to-scrape homepage
@@ -115,7 +115,7 @@ print(genre_links)
 # Get book genre
 genre = get_genre(soup)
 # Get genre links
-genre_book_links = genre_book_links(soup)
+genre_page_links = genre_page_links(soup)
 
 
 
