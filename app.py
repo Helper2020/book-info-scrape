@@ -1,9 +1,12 @@
+from urllib.parse import urlparse
 from bs4 import BeautifulSoup
+import random
 import json
 import requests
 import re
 
 
+img_num = 1
 '''
 Generate a url
 returns a soup object
@@ -52,6 +55,50 @@ def multiple_page_links(link, soup):
     
     return next_urls
 
+'''
+[
+    {
+        'title': title_name,
+        'upc': upc,
+        'price': price,
+        'stock': amount,
+        'Description': 'description'
+    }
+]
+'''
+
+def scrape_book_info(url):
+    soup = get_soup(url)
+    # Get title name
+    title = str(soup.h1.string)
+    # Get product info
+    ptag_set = soup.find_all('p')
+    synopsis = ptag_set[3]
+    # get price
+    symbol_price = soup.find(class_='price_color').string
+    price = re.search('([0-9]+\.[0-9]+)', symbol_price).group()
+    # Randomly generate stock quanity
+    stock = random.randrange(1,100)
+    # get UPC
+    table = soup.find(class_="table-striped")
+    upc = table.find('td').string
+    # Get image!
+    domain = urlparse(url).netloc
+    div_tag = soup.find(class_='item active')
+    img_rel_link =  div_tag.img['src'][6:]
+    print(img_rel_link)
+    img_link = "https://" + domain +'/' + img_rel_link
+    print(img_link)
+    downloaded_image = requests.get(img_link)
+    global img_num
+    with open(str(img_num) + ".jpg", "wb") as f:
+       f.write(downloaded_image)
+       img_num += 1
+
+def get_image(url, soup):
+    pass
+
+
 urls = ['https://books.toscrape.com/index.html']
 
 req = requests.get(urls.pop())
@@ -79,11 +126,14 @@ for idx in range(len(urls)):
 soup = get_soup(urls[0])
 # get multiple links in genre if any
 genre_links = multiple_page_links(urls[0], soup)
-print(genre_links)
 # Get book genre
 genre = get_genre(soup)
 # Get genre links
 genre_book_links = genre_book_links(soup)
+# Get book info
+books_file = 'books.json'
+scrape_book_info(genre_book_links[0])
+
 
 
 
