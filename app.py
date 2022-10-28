@@ -151,7 +151,7 @@ def scrape_book_info(url):
 
     author_id = random.randrange(1000,1001)
     book_id = random.randrange(1000, 1001)
-
+    # Testing
     book_info = {'author_id': author_id, 'book_id': book_id,
                  'title': title, 'synopsis': synopsis,
                  'price': price, 'stock': stock,
