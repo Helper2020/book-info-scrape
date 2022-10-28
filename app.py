@@ -149,6 +149,16 @@ def scrape_book_info(url):
     img_file = get_image(url, soup)
     print(img_file)
 
+    author_id = random.randrange(1000,1001)
+    book_id = random.randrange(1000, 1001)
+
+    book_info = {'author_id': author_id, 'book_id': book_id,
+                 'title': title, 'synopsis': synopsis,
+                 'price': price, 'stock': stock,
+                 'upc': upc, 'img_file': img_file}
+
+    return book_info
+
 def get_image(url, soup):
     domain = urlparse(url).netloc
     div_tag = soup.find(class_='item active')
@@ -164,6 +174,9 @@ def get_image(url, soup):
     img.save(file_path)
 
     return file_path
+
+def save_book(title, synopsis, price, stock, upc, img_file):
+    pass
 
 
 urls = genre_book_links()
@@ -181,7 +194,7 @@ subpages = multiple_page_links(urls[0], soup)
 # Get page book links
 book_links = genre_page_links(soup)
 '''
-scrape_book_info('https://books.toscrape.com/catalogue/tipping-the-velvet_999/index.html')
+#scrape_book_info('https://books.toscrape.com/catalogue/tipping-the-velvet_999/index.html')
 
 
 
