@@ -1,12 +1,14 @@
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
+from PIL import Image
+from urllib.request import urlopen
 import random
-import json
 import requests
 import re
 
 
-img_num = 1
+HOME_PAGE = 'https://books.toscrape.com/index.html'
+img_num = 0
 '''
 Generate a url
 returns a soup object
@@ -16,6 +18,34 @@ def get_soup(url):
     return BeautifulSoup(req.text, 'html.parser')
 
 
+def genre_book_links():
+    '''
+    This function takes a BeautifulSoup object that's
+    a parsed document of the book-to-scrape homepage
+    Args:
+        soup (BeaufifulSoup): BeautifulSoup object
+    returns:
+        List: A List of strings that consists the genre urls
+    '''
+    soup = get_soup(HOME_PAGE)
+    # Gather a list of urls from the sidebar
+    sidebar = soup.find(class_='nav-list')
+
+    urls = []
+
+    for link in sidebar.find_all('a'):
+        url = link.get('href')
+        if url.find('books_1') > -1:
+            continue
+        urls.append(url)
+
+    # Need to prepend(https://books.toscrape.com/catalogue/category) to the rest of the urls
+    for idx in range(len(urls)):
+        url = urls[idx]
+        new_url = 'https://books.toscrape.com/' + url
+        urls[idx] = new_url
+
+    return urls
 def get_genre(soup):
     '''
     This function takes a BeautifulSoup object
@@ -30,11 +60,10 @@ def get_genre(soup):
     return page_header.h1.string
 
 
-'''
-Get book links from a page
-'''
 def genre_page_links(soup):
     '''
+    Get book links from a page
+
     This function takes a BeautifulSoup object that's
     a parsed document of the book-to-scrape homepage
 
@@ -57,7 +86,7 @@ def genre_page_links(soup):
 
 def multiple_page_links(link, soup):
     '''
-    This function tkaes a BeautifulSoup object that's
+    This function takes a BeautifulSoup object that's
     a parsed document of a genre book link then finds 
     all the genre subpages.
 
@@ -97,70 +126,66 @@ def multiple_page_links(link, soup):
 
 def scrape_book_info(url):
     soup = get_soup(url)
+
     # Get title name
     title = str(soup.h1.string)
+    
     # Get product info
     ptag_set = soup.find_all('p')
     synopsis = ptag_set[3]
+    
     # get price
     symbol_price = soup.find(class_='price_color').string
     price = re.search('([0-9]+\.[0-9]+)', symbol_price).group()
+    
     # Randomly generate stock quanity
     stock = random.randrange(1,100)
+    
     # get UPC
     table = soup.find(class_="table-striped")
     upc = table.find('td').string
-    # Get image!
-    domain = urlparse(url).netloc
-    div_tag = soup.find(class_='item active')
-    img_rel_link =  div_tag.img['src'][6:]
-    print(img_rel_link)
-    img_link = "https://" + domain +'/' + img_rel_link
-    print(img_link)
-    downloaded_image = requests.get(img_link)
-    global img_num
-    with open(str(img_num) + ".jpg", "wb") as f:
-       f.write(downloaded_image)
-       img_num += 1
+    
+    # get img path
+    img_file = get_image(url, soup)
+    print(img_file)
 
 def get_image(url, soup):
-    pass
+    domain = urlparse(url).netloc
+    div_tag = soup.find(class_='item active')
 
+    img_rel_link =  div_tag.img['src'][6:]
 
-urls = ['https://books.toscrape.com/index.html']
-
-req = requests.get(urls.pop())
-soup = BeautifulSoup(req.text, 'html.parser')
-
-# Gather a list of urls from the sidebar
-sidebar = soup.find(class_='nav-list')
-
-for link in sidebar.find_all('a'):
-    url = link.get('href')
-    if url.find('books_1') > -1:
-        continue
-    urls.append(url)
-
+    img_link = "https://" + domain +'/' + img_rel_link
+   
+    downloaded_image = requests.get(img_link)
+    img = Image.open(urlopen(img_link))
     
-# Need to prepend(https://books.toscrape.com/catalogue/category) to the rest of the urls
-for idx in range(len(urls)):
-    url = urls[idx]
-    new_url = 'https://books.toscrape.com/' + url
-    urls[idx] = new_url
+    file_path = file_path = 'images/' + str(img_num+1) + '.jpg'
+    img.save(file_path)
+
+    return file_path
 
 
+urls = genre_book_links()
 
-# Lets get the book data now
+
+'''
+
+# get soup for travel page
 soup = get_soup(urls[0])
-# get multiple links in genre if any
-genre_links = multiple_page_links(urls[0], soup)
-# Get book genre
+# Get genre
 genre = get_genre(soup)
-# Get genre links
-genre_book_links = genre_book_links(soup)
-# Get book info
-books_file = 'books.json'
-scrape_book_info(genre_book_links[0])
+print(genre)
+# Get multiple page links
+subpages = multiple_page_links(urls[0], soup)
+# Get page book links
+book_links = genre_page_links(soup)
+'''
+scrape_book_info('https://books.toscrape.com/catalogue/tipping-the-velvet_999/index.html')
+
+
+
+
 
 
 
