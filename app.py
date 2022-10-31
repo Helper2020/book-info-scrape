@@ -3,6 +3,7 @@ import random
 import requests
 import re
 import json
+import csv
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 from PIL import Image
@@ -155,8 +156,8 @@ def scrape_book_info(url, genre):
 
     author_id = random.randrange(1000,1001)
     book_id = random.randrange(1000, 1001)
-    # Testing
-    book_info = {'author_id': author_id, 'book_id': book_id,
+    # Fill info except name. Will be done later
+    book_info = {'author_id': author_id, 'first_name': None, 'last_name': None, 'book_id': book_id,
                  'title': title, 'synopsis': synopsis, 'genre': genre,
                  'price': price, 'stock': stock,
                  'upc': upc, 'img_file_path': img_path}
@@ -189,26 +190,7 @@ def get_image(url, soup):
 
     return rel_path
 
-
-
-
-'''
-urls = genre_book_links()
-
-# get soup for travel page
-soup = get_soup(urls[1])
-# Get genre
-genre = get_genre(soup)
-# Get multiple page links
-subpages = multiple_page_links(urls[1], soup)
-# Get page book links
-book_links = genre_page_links(soup)
-print(len(book_links))
-
-for subpage in subpages:
-    print(subpage)
-
-'''
+# Lets scrape now
 
 genre_urls = genre_book_links()
 books_info = []
@@ -230,11 +212,25 @@ for genre_url in genre_urls:
             books_info.append(scrape_book_info(book_page, genre))
        
 
+# 900 author names
+books_info900 = books_info[:900]
 
+with open('full_names900.csv', 'r') as file:
+    reader = csv.reader(file)
+    # Skip header row
+    next(reader, None)
+    # idx 
+    idx = 0
+    for row in reader:
+        book = books_info900[idx]
+        book['first_name'] = row[1]
+        book['last_name'] = row[2]
 
-print(len(books_info))
+print(len(books_info900))
 with open('books_json.txt', 'w') as file:
     json.dump(books_info, file)
+
+
 
 
 
