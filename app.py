@@ -228,7 +228,7 @@ with open('full_names900.csv', 'r') as file:
 
 print(len(books_info900))
 with open('books_json.txt', 'w') as file:
-    json.dump(books_info, file)
+    json.dump(books_info900, file)
 
 
 
