@@ -1,4 +1,6 @@
+from ast import Try
 import os
+from pydoc import synopsis
 import random
 import requests
 import re
@@ -134,11 +136,16 @@ def scrape_book_info(url, genre):
     soup = get_soup(url)
 
     # Get title name
-    title = str(soup.h1.string)
+    title = str(soup.h1.string).encode("ascii", "ignore").decode('utf-8')
     
     # Get product info
     ptag_set = soup.find_all('p')
     synopsis = ptag_set[3].string
+    
+    if synopsis is None:
+        synopsis = "No synopsis available"
+    else:
+        synopsis = synopsis.encode("ascii", "ignore").decode('utf-8')
     
     # get price
     symbol_price = soup.find(class_='price_color').string
@@ -225,8 +232,9 @@ with open('full_names900.csv', 'r') as file:
         book = books_info900[idx]
         book['first_name'] = row[1]
         book['last_name'] = row[2]
+        idx += 1
 
-print(len(books_info900))
+
 with open('books_json.txt', 'w') as file:
     json.dump(books_info900, file)
 
