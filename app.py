@@ -161,10 +161,9 @@ def scrape_book_info(url, genre):
     # get img path
     img_path = get_image(url, soup)
 
-    author_id = random.randrange(1000,1001)
-    book_id = random.randrange(1000, 1001)
+  
     # Fill info except name. Will be done later
-    book_info = {'author_id': author_id, 'first_name': None, 'last_name': None, 'book_id': book_id,
+    book_info = {'first_name': None, 'last_name': None, 
                  'title': title, 'synopsis': synopsis, 'genre': genre,
                  'price': price, 'stock': stock,
                  'upc': upc, 'img_file_path': img_path}
