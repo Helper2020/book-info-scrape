@@ -234,7 +234,7 @@ with open('full_names900.csv', 'r') as file:
         idx += 1
 
 
-with open('books_json.txt', 'w') as file:
+with open('books_info.json', 'w') as file:
     json.dump(books_info900, file)
 
 
